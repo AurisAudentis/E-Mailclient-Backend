@@ -38,16 +38,3 @@ export class IMAPConnection {
         return im_simple.connect(this.config);
     }
 }
-
-const configTest: ImapSimpleOptions = {
-    imap: {
-        user: "maxiem@maxiemgeldhof.com",
-        password: "e8e85cmc",
-        host: "maxiemgeldhof.com",
-        port: 993,
-        tls: true,
-        authTimeout: 3000,
-    },
-};
-
-new IMAPConnection(configTest).getAllMails().then(console.log);
