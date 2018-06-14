@@ -3,12 +3,15 @@ import {ImapSimple, ImapSimpleOptions} from "imap-simple";
 import {seqPromiseResolver} from "./Helpers/PromiseHelper";
 import {messageToMail} from "./Helpers/MessageConverter";
 import {IDTOMail} from "../Database/Documents/IMail";
+import {IUser} from "../Database/Documents/IUser";
 
 export class IMAPConnection {
     private config: ImapSimpleOptions;
+    private user: IUser;
 
-    constructor(config: ImapSimpleOptions) {
+    constructor(config: ImapSimpleOptions, user: IUser) {
         this.config = config;
+        this.user = user;
     }
 
     public getAllMails(): Promise< IDTOMail[] > {
@@ -31,7 +34,7 @@ export class IMAPConnection {
         const searchOptions = {bodies: ["HEADER", "TEXT"], markSeen: false};
         // Map results to IDTOMail format.
         return conn.search(searchCriteria, searchOptions).then((results) =>
-            results.map((x) => messageToMail(x, box, this.config.imap.user)));
+            results.map((x) => messageToMail(x, box, this.config.imap.user, this.user._id)));
     }
 
     private getConnection(): Promise < ImapSimple > {

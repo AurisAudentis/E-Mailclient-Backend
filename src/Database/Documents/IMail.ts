@@ -1,19 +1,23 @@
-import {Document} from "mongoose";
+import {Document, Schema} from "mongoose";
 
 export interface IDTOMail {
-    subject: string;
+    userid: Schema.Types.ObjectId;
     mailbox: string;
     recip: string;
     mailid: number;
-    date: Date;
-    from: {
-        name: string;
-        returnAddress: string;
+    email: {
+        subject: string;
+        date: Date;
+        from: {
+            name: string;
+            returnAddress: string;
+        };
+        to: string;
+        message: string;
+        unread: boolean;
+        flags?: string[];
     };
-    to: string;
-    message: string;
-    unread: boolean;
-    flags?: string[];
+
 }
 
 export interface IMail extends IDTOMail, Document {
