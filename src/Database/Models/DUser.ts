@@ -6,6 +6,8 @@ import {accountModel, decryptAccounts} from "./DAccounts";
 import {IDTOMail} from "../Documents/IMail";
 import {emailModel} from "./DMail";
 import {addServer} from "./DServer";
+import {IMAPConnection} from "../../Imap-Simple/Connection";
+import {assert} from "../../Helpers/Assertion";
 
 const userSchema: Schema = new Schema({
     username : String,
@@ -38,9 +40,11 @@ userSchema.methods.addAccount = function(account: IMailAccount) {
     const server = account.server;
     const acc = account as any;
     addServer(server).then((x) => {
+        console.log("Server");
         acc.server = x;
         return accountModel.findOne({userid : user._id});
     }).then((resolve) => {
+        console.log("dood");
         resolve.accounts.push(acc);
         resolve.save();
     });
@@ -51,8 +55,20 @@ userSchema.methods.getMailAccounts = function(): Promise<IMailAccount[]> {
     return accountModel.findOne({userid: user._id}).then((x) => x.getAccounts());
 };
 
-userSchema.methods.getDecryptedMailAccounts = function(key): Promise<IMailAccount[]> {
-    return this.getMailAccounts().then((x) => decryptAccounts(x, key));
+userSchema.methods.getDecryptedMailAccounts = function(): Promise<IMailAccount[]> {
+    assert("There's no key associated with this account.", !!this.key);
+    return this.getMailAccounts().then((x) => decryptAccounts(x, this.key));
+};
+
+userSchema.methods.getAllMail = function(): Promise<IDTOMail[]> {
+    return Promise.all(this.getDecryptedMailAccounts()
+    // Mapping the accounts to all the mails from that account.
+        .then((accs) => {
+            return accs.map((x) => new IMAPConnection(x, this).getAllMails());
+        }))
+    // Mapping the array to a flattened version, allowing for a single return array instead of nested per account.
+        .then((x) => [].concat.apply([], x))
+        .catch((err) => []);
 };
 
 userSchema.methods.addMail = function(mail: IDTOMail) {

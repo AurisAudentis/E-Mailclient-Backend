@@ -10,8 +10,8 @@ mainRouter.get("/", (req, res) => {
     req.session.counter += 1;
     let message = "You've visited this page " + req.session.counter + "times.\n";
     if (req.isAuthenticated()) {
-        const user = req.user;
-        message += "You are also logged in: welcome to " + req.user.email;
+        const user = req.user as IUser;
+        message += "You are also logged in: welcome to " + user.email;
     }
     res.send(message);
 });

@@ -2,7 +2,7 @@ import {Express} from "express";
 import {localstrategy} from "./LocalStrategy";
 import passport= require("passport");
 import {IUser} from "../../Database/Documents/IUser";
-import {userModel} from "../../Database/mongoose-handler";
+import {userModel} from "../../Database/Models/DUser";
 
 export function initLocalAuth(app: Express) {
     app.use(passport.initialize());

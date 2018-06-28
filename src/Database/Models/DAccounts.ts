@@ -24,6 +24,7 @@ accountSchema.methods.getDecryptedAccounts = function(key) {
 };
 
 export function decryptAccounts(accounts: IMailAccount[], key: string): Promise<IMailAccount[]> {
+    console.log((accounts));
     return Promise.all(accounts.map((account) =>
         decrypt(unpackIv(account.password), key)
             .then((pass) => {

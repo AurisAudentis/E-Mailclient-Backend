@@ -1,4 +1,4 @@
-import {userModel} from "../Database/mongoose-handler";
+import {userModel} from "../Database/Models/DUser";
 
 export function validate(password, minlength, maxlength, chars): string {
     return min_length(max_length(contains(password, chars), maxlength), minlength);

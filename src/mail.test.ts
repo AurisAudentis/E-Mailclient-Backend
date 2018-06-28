@@ -3,21 +3,21 @@ import {deriveKey, encrypt, generateIv} from "./Imap-Simple/IMAPEncryptDecrypt";
 import {connectMongo} from "./Database/mongoose-handler";
 import {IDTOMail} from "./Database/Documents/IMail";
 import {IMAPConnection} from "./Imap-Simple/Connection";
-import {accountToConfig} from "./Imap-Simple/Helpers/ConfigHelper";
-import {IMailAccount} from "./Database/Documents/IUser";
+import {accountToConfig} from "./Helpers/ConfigHelper";
+import {IDTOUser, IMailAccount} from "./Database/Documents/IUser";
 import {deleteAllMails, saveAllMails} from "./Database/Models/DMail";
 
 // Function to test the addition of an email account to the global account.
 function test_save_account() {
-   userModel.findOne({email: "maxiemgeldhof@msn.com"}).then((user) => {
+   userModel.findOne({email: "test@maxiemgeldhof.com"}).then((user) => {
        const account =  {
-           email: "maxiem@maxiemgeldhof.com",
+           email: "maxiemgeldhof@msn.com",
            password: "",
            server: {
-               host: "maxiemgeldhof.com",
+               host: "imap-mail.outlook.com",
                port: 993,
                tls: true,
-               authTimeout: 3000,
+               authTimeout: 100,
                type: "input",
            },
        };
@@ -31,8 +31,7 @@ function test_save_account() {
 }
 
 function getAllMailAccounts(user): Promise<IMailAccount[]> {
-    return deriveKey("12345", user.iv)
-            .then((key) => user.getDecryptedMailAccounts(key));
+    return user.getDecryptedMailAccounts();
 }
 
 function getAllMailsFromAccount(): Promise<IDTOMail[]> {
@@ -52,4 +51,17 @@ function deleteMailsFromDatabase() {
 }
 
 connectMongo();
-deleteMailsFromDatabase();
+
+userModel.findOne({email: "test@maxiemgeldhof.com"}).then((user) =>  {
+    deriveKey("12345", user.iv).then( (key) => {
+        user.key = key;
+        getAllMailAccounts(user).then((accs) => new IMAPConnection(accountToConfig(accs[1]), user).test())
+       .then(console.log);
+}); });
+// test_save_account();
+// const registerInfo: IDTOUser = {
+//     email: "test@maxiemgeldhof.com",
+//     password: "12345",
+//     accounts : [],
+//  };
+// userModel.create(registerInfo);

@@ -9,6 +9,7 @@ import {connectMongo} from "./Database/mongoose-handler";
 import {authRouter} from "./Routers/AuthRouter";
 import {mainRouter} from "./Routers/MainRouter";
 import cors = require("cors");
+import {mailRouter} from "./Routers/MailRouter";
 
 export class App {
     public express;
@@ -16,12 +17,11 @@ export class App {
     constructor() {
         this.express = express();
         this.express.use(bodyParser.json());
-        this.express.use(bodyParser.urlencoded({extended: true}));
         this.express.use(logger("dev"));
         this.express.use("/static", express.static(path.join(__dirname, "/Public")));
         this.express.set("views", path.join(__dirname, "/Public"));
         this.express.set("view engine", "pug");
-        this.express.use(cors({credentials: true, origin: "http://localhost:4200"}));
+        this.express.use(cors({credentials: true, origin: "http://192.168.0.105:4200"}));
         connectMongo();
         this.initSession();
         this.routes();
@@ -29,12 +29,14 @@ export class App {
 
     public launch(): App {
         this.express.listen(8080);
+        console.log("Started listening to calls on port 8080");
         return this;
     }
 
     private routes(): void {
-        this.express.use("/", authRouter);
+        this.express.use("/user", authRouter);
         this.express.use("/", mainRouter);
+        this.express.use("/mail", mailRouter);
     }
     private initSession(): void {
         const RedisStore = connRedis(session);

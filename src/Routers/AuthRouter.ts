@@ -1,12 +1,14 @@
-import {IDTOUser, IMailAccount, IUser} from "../Database/Documents/IUser";
-import {userModel, serverModel} from "../Database/mongoose-handler";
-import passport = require("passport");
+import {IDTOUser, IUser} from "../Database/Documents/IUser";
+import {userModel} from "../Database/Models/DUser";
 import {uniqueEmail, validate} from "../AuthStrategies/Validate_Input";
-import express = require("express");
-import {deriveKey} from "../Imap-Simple/IMAPEncryptDecrypt";
+import {deriveKey, encrypt, generateIv} from "../Imap-Simple/IMAPEncryptDecrypt";
 import {isAuthed} from "../AuthStrategies/AuthMiddleware";
+import passport = require("passport");
+import express = require("express");
+import {IMAPConnection} from "../Imap-Simple/Connection";
+import {accountToConfig} from "../Helpers/ConfigHelper";
 
-export let authRouter = express.Router();
+export const authRouter = express.Router();
 
 authRouter.post("/register", (req, res) => {
     if (validate(req.body.email, 2, 100, ["@"])) {
@@ -27,14 +29,23 @@ authRouter.post("/register", (req, res) => {
 });
 
 authRouter.post("/login", (req, res, next) => {
-    passport.authenticate("local", (err, user: IUser) => {
-            if (err) { next(err); }
-            if (!user) { return res.sendStatus(409); }
-            req.logIn(user, (fail) => {
+    passport.authenticate("local", (errs, user: IUser) => {
+        if (errs) { next(errs); }
+        if (!user) { return res.sendStatus(409); }
+
+        req.logIn(user, (fail) => {
                 if (fail) { return next(fail); }
-                req.session.key = deriveKey(req.body.password, user.iv);
-                return res.json({email: user.email});
+                deriveKey(req.body.password, user.iv).then((key) => {
+                    if (!req.session) {
+                        throw {name: "SessionError", message: "No session is found. Is Redis operational?"};
+                    }
+                    req.session.key = key;
+                    req.session.save((err) => console.error(err));
+                    return req.session.key = key;
+                });
+                return res.redirect("/user");
         });
+
         })(req, res, next);
     },
 );
@@ -42,18 +53,36 @@ authRouter.post("/login", (req, res, next) => {
 authRouter.get("/logout", (req, res) => {
     if (req.session) {
         req.logOut();
-        req.session.destroy((err) => { throw err; });
     }
     res.sendStatus(200);
 });
 
-authRouter.get("/user", isAuthed, (req, res) => {
-    res.json({ email: req.user.email, accounts: req.user.accounts });
+authRouter.get("/", isAuthed, (req, res) => {
+    req.user.getMailAccounts().then((x) =>
+     res.json({email: req.user.email, accounts: x}));
 });
 
-authRouter.get("/user/addAccount", isAuthed, ((req, res) => {
-    const data = req.body.account;
-    const account = { email: data.email, password: "", server: "" };
-    const server = { type: data.type, host: data.address, port: data.port, tls: data.tls, authTimeout: 3000};
+authRouter.post("/addAccount", isAuthed, ((req, res) => {
+    const user = req.user as IUser;
+    const data = req.body;
+    const server = data.server;
+    const account = { email: data.email, password: data.password, server };
 
+    console.log("Testing", account);
+    new IMAPConnection(accountToConfig(account), user).test()
+        .then((succeeded) => {
+            console.log(succeeded);
+            if (succeeded) {
+                console.log("adding acc");
+                encrypt(data.password, user.key, generateIv())
+                    .then((pass) => {
+                        account.password = pass;
+                        user.addAccount(account);
+                        res.status(200);
+                        res.end();
+                    });
+            } else {
+                res.status(400);
+            }
+        });
 }));

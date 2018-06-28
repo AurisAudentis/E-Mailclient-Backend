@@ -1,5 +1,6 @@
 import {Document} from "mongoose";
 import {IDTOServer} from "./IServer";
+import {IDTOMail} from "./IMail";
 // Type-safe saving
 export interface IDTOUser {
     email: string;
@@ -17,9 +18,11 @@ export interface IMailAccount {
 // Model object
 // The methods are implemented in DUser using model.methods.
 export interface IUser extends IDTOUser, Document {
+    key?: string;
     addAccount: (account: IMailAccount) => void;
     getMailAccounts: () => Promise<IMailAccount[]>;
-    getDecryptedMailAccounts: (key) => Promise<IMailAccount[]>;
+    getDecryptedMailAccounts: () => Promise<IMailAccount[]>;
+    getAllMail: () => Promise<IDTOMail[]>;
     iv: string;
     createdate: Date;
 }
