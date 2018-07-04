@@ -6,12 +6,21 @@ import {seqPromiseResolver} from "../Helpers/PromiseHelper";
 
 // We resolve all promises sequentially to insure that the system doesn't get overloaded
 // and to prevent too many connections to be simultaneously started.
+
+export function repeatSync(user: IUser, counter) {
+    counter = counter || 0;
+    if (counter < 6) {
+        sync(user)
+            .then(() => setTimeout(() => repeatSync(user, counter + 1), 600000));
+    }
+}
+
 export function sync(user: IUser) {
-    user.getDecryptedMailAccounts()
+    return user.getDecryptedMailAccounts()
         .then((accounts) => {
             const factories = accounts.map((account) => () => syncAccount(user, account));
             console.log("sync");
-            seqPromiseResolver(factories);
+            return seqPromiseResolver(factories);
         });
 }
 

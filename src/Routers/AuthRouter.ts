@@ -7,6 +7,7 @@ import passport = require("passport");
 import express = require("express");
 import {IMAPConnection} from "../Imap-Simple/Connection";
 import {accountToConfig} from "../Helpers/ConfigHelper";
+import {sync} from "../Imap-Simple/SyncService";
 
 export const authRouter = express.Router();
 
@@ -68,16 +69,14 @@ authRouter.post("/addAccount", isAuthed, ((req, res) => {
     const server = data.server;
     const account = { email: data.email, password: data.password, server };
 
-    console.log("Testing", account);
     new IMAPConnection(accountToConfig(account), user).test()
         .then((succeeded) => {
-            console.log(succeeded);
             if (succeeded) {
-                console.log("adding acc");
                 encrypt(data.password, user.key, generateIv())
                     .then((pass) => {
                         account.password = pass;
                         user.addAccount(account);
+                        sync(user);
                         res.status(200);
                         res.end();
                     });
