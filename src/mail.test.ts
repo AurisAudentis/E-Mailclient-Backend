@@ -1,3 +1,4 @@
+///<reference path="Database/Models/DMail.ts"/>
 import {userModel} from "./Database/Models/DUser";
 import {deriveKey, encrypt, generateIv} from "./Imap-Simple/IMAPEncryptDecrypt";
 import {connectMongo} from "./Database/mongoose-handler";
@@ -6,18 +7,19 @@ import {IMAPConnection} from "./Imap-Simple/Connection";
 import {accountToConfig} from "./Helpers/ConfigHelper";
 import {IDTOUser, IMailAccount} from "./Database/Documents/IUser";
 import {deleteAllMails, saveAllMails} from "./Database/Models/DMail";
+import {sync, syncBox} from "./Imap-Simple/SyncService";
 
 // Function to test the addition of an email account to the global account.
 function test_save_account() {
    userModel.findOne({email: "test@maxiemgeldhof.com"}).then((user) => {
        const account =  {
-           email: "maxiemgeldhof@msn.com",
+           email: "maxiem@maxiemgeldhof.com",
            password: "",
            server: {
-               host: "imap-mail.outlook.com",
+               host: "maxiemgeldhof.com",
                port: 993,
                tls: true,
-               authTimeout: 100,
+               authTimeout: 1000,
                type: "input",
            },
        };
@@ -55,9 +57,10 @@ connectMongo();
 userModel.findOne({email: "test@maxiemgeldhof.com"}).then((user) =>  {
     deriveKey("12345", user.iv).then( (key) => {
         user.key = key;
-        getAllMailAccounts(user).then((accs) => new IMAPConnection(accountToConfig(accs[1]), user).test())
-       .then(console.log);
-}); });
+        sync(user);
+});
+});
+
 // test_save_account();
 // const registerInfo: IDTOUser = {
 //     email: "test@maxiemgeldhof.com",

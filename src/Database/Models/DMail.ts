@@ -24,7 +24,7 @@ const emailSchema: Schema = new Schema({
 export const emailModel: Model<any> = model<any>("email", emailSchema);
 
 export function saveAllMails(mails: IDTOMail[]) {
-    Promise.all(mails.map((mail) => emailModel.create(mail))).then((x) => mails.length);
+    Promise.all(mails.map((mail) => emailModel.create(mail)));
 }
 
 export function deleteAllMails(user: IUser) {
