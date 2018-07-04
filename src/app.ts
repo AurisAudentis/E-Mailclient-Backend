@@ -17,6 +17,7 @@ export class App {
     constructor() {
         this.express = express();
         this.express.use(bodyParser.json());
+        this.express.use(bodyParser.urlencoded());
         this.express.use(logger("dev"));
         this.express.use("/static", express.static(path.join(__dirname, "/Public")));
         this.express.set("views", path.join(__dirname, "/Public"));

@@ -1,4 +1,3 @@
-///<reference path="Database/Models/DMail.ts"/>
 import {userModel} from "./Database/Models/DUser";
 import {deriveKey, encrypt, generateIv} from "./Imap-Simple/IMAPEncryptDecrypt";
 import {connectMongo} from "./Database/mongoose-handler";
@@ -6,7 +5,7 @@ import {IDTOMail} from "./Database/Documents/IMail";
 import {IMAPConnection} from "./Imap-Simple/Connection";
 import {accountToConfig} from "./Helpers/ConfigHelper";
 import {IDTOUser, IMailAccount} from "./Database/Documents/IUser";
-import {deleteAllMails, saveAllMails} from "./Database/Models/DMail";
+import {deleteAllMails, emailModel, saveAllMails} from "./Database/Models/DMail";
 import {sync, syncBox} from "./Imap-Simple/SyncService";
 
 // Function to test the addition of an email account to the global account.
@@ -58,6 +57,15 @@ userModel.findOne({email: "test@maxiemgeldhof.com"}).then((user) =>  {
     deriveKey("12345", user.iv).then( (key) => {
         user.key = key;
         sync(user);
+        const paginOptions = {
+            sort: {date: 1 },
+            page:  1,
+            limit: 20,
+        };
+        emailModel.paginate({userid: user._id, recip: "maxiem@maxiemgeldhof.com", mailbox: "INBOX"}, paginOptions)
+            .then((result) => {
+                console.log(result.docs);
+            });
 });
 });
 

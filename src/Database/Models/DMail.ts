@@ -1,6 +1,7 @@
-import {Model, model, Schema} from "mongoose";
+import {Model, model, PaginateModel, Schema} from "mongoose";
 import {IDTOMail} from "../Documents/IMail";
 import {IUser} from "../Documents/IUser";
+import paginate = require("mongoose-paginate");
 
 const emailSchema: Schema = new Schema({
     userid: Schema.Types.ObjectId,
@@ -21,7 +22,9 @@ const emailSchema: Schema = new Schema({
     },
 });
 
-export const emailModel: Model<any> = model<any>("email", emailSchema);
+emailSchema.plugin(paginate);
+
+export const emailModel: PaginateModel<any> = model<any>("email", emailSchema);
 
 export function saveAllMails(mails: IDTOMail[]) {
     Promise.all(mails.map((mail) => emailModel.create(mail)));

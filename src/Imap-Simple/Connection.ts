@@ -53,7 +53,7 @@ export class IMAPConnection {
             .then(() =>
                 Promise.all(uids.map((uid) => this.conn.search([["UID", uid]], {bodies: ["HEADER", "TEXT"]}))))
             .then((messages) =>
-                messages.map((message) => messageToMail(message[0], box, this.user.email, this.user._id)),
+                messages.map((message) => messageToMail(message[0], box, this.config.imap.user, this.user._id)),
             )
             .then((messages) => messages.reduce((acc, curr) => {acc.push(curr); return acc; }, []))
             .then(this.end.bind(this));

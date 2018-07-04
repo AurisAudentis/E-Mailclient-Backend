@@ -40,11 +40,9 @@ userSchema.methods.addAccount = function(account: IMailAccount) {
     const server = account.server;
     const acc = account as any;
     addServer(server).then((x) => {
-        console.log("Server");
         acc.server = x;
         return accountModel.findOne({userid : user._id});
     }).then((resolve) => {
-        console.log("dood");
         resolve.accounts.push(acc);
         resolve.save();
     });
