@@ -26,7 +26,6 @@ export function sync(user: IUser) {
 
 export function syncAccount(user: IUser, account: IMailAccount): Promise<void[]> {
     const conn = new IMAPConnection(accountToConfig(account), user);
-    console.log("sync acc");
     return conn.getBoxes().then(
         (boxes) => {
             syncBoxes(user, account, boxes);
@@ -36,7 +35,6 @@ export function syncAccount(user: IUser, account: IMailAccount): Promise<void[]>
 }
 
 export function syncBox(user: IUser, conn: IMAPConnection, box: string): Promise<void> {
-    console.log("sync box");
     return Promise.all([conn.headersAndFlags(box), emailModel.find({userid: user._id, mailbox: box})])
         .then((emails) => {
             // Mapping uid to mail for correspondence between objects.

@@ -32,11 +32,17 @@ export function decryptAccounts(accounts: IMailAccount[], key: string): Promise<
             })));
 }
 
-export function syncBoxes(user, account, boxes) {
-    accountModel.findOne({userid: user._id}).then((accounts) => {
+export function syncBoxes(user, account, boxes): Promise<void> {
+    return accountModel.findOne({userid: user._id}).then((accounts) => {
        const acc = accounts.accounts.filter((x) => x.email === account.email)[0];
        acc.boxes = boxes;
-       accounts.save();
+       return accounts.save();
+    });
+}
+
+export function getAccount(user, email): Promise<IMailAccount> {
+    return accountModel.findOne({userid: user._id}).then((accounts) => {
+        return accounts.accounts.filter((x) => x.email === email)[0];
     });
 }
 
