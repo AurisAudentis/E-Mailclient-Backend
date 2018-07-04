@@ -3,6 +3,7 @@ import {IMailAccount, IUser} from "../Database/Documents/IUser";
 import {accountToConfig} from "../Helpers/ConfigHelper";
 import {emailModel, saveAllMails} from "../Database/Models/DMail";
 import {seqPromiseResolver} from "../Helpers/PromiseHelper";
+import {syncBoxes} from "../Database/Models/DAccounts";
 
 // We resolve all promises sequentially to insure that the system doesn't get overloaded
 // and to prevent too many connections to be simultaneously started.
@@ -19,7 +20,6 @@ export function sync(user: IUser) {
     return user.getDecryptedMailAccounts()
         .then((accounts) => {
             const factories = accounts.map((account) => () => syncAccount(user, account));
-            console.log("sync");
             return seqPromiseResolver(factories);
         });
 }
@@ -29,6 +29,7 @@ export function syncAccount(user: IUser, account: IMailAccount): Promise<void[]>
     console.log("sync acc");
     return conn.getBoxes().then(
         (boxes) => {
+            syncBoxes(user, account, boxes);
             const factories = boxes.map((box) => () => syncBox(user, conn, box));
             return seqPromiseResolver<void>(factories);
         });

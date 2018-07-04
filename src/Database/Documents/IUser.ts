@@ -13,6 +13,7 @@ export interface IMailAccount {
     email: string;
     password: string;
     server: IDTOServer;
+    boxes: string[];
 }
 
 // Model object

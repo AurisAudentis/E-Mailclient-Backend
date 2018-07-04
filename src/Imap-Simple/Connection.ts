@@ -2,7 +2,7 @@ import im_simple = require("imap-simple");
 import {ImapSimple, ImapSimpleOptions} from "imap-simple";
 import {seqPromiseResolver} from "../Helpers/PromiseHelper";
 import {messageToMail} from "../Helpers/MessageConverter";
-import {IDTOMail, IMail} from "../Database/Documents/IMail";
+import {IDTOMail} from "../Database/Documents/IMail";
 import {IUser} from "../Database/Documents/IUser";
 import {ImapMessageAttributes} from "imap";
 

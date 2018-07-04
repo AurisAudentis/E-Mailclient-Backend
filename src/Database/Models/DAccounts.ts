@@ -5,7 +5,7 @@ import {decrypt, unpackIv} from "../../Imap-Simple/IMAPEncryptDecrypt";
 
 const accountSchema: Schema = new Schema({
     userid: Schema.Types.ObjectId,
-    accounts: [{email: String, password: String, server: Schema.Types.ObjectId}],
+    accounts: [{email: String, password: String, server: Schema.Types.ObjectId, boxes: [String] }],
 });
 
 accountSchema.methods.getAccounts = function() {
@@ -31,4 +31,13 @@ export function decryptAccounts(accounts: IMailAccount[], key: string): Promise<
                return account;
             })));
 }
+
+export function syncBoxes(user, account, boxes) {
+    accountModel.findOne({userid: user._id}).then((accounts) => {
+       const acc = accounts.accounts.filter((x) => x.email === account.email)[0];
+       acc.boxes = boxes;
+       accounts.save();
+    });
+}
+
 export const accountModel: Model<any> = model<any>("Account", accountSchema);

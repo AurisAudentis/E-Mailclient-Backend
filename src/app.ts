@@ -10,6 +10,7 @@ import {authRouter} from "./Routers/AuthRouter";
 import {mainRouter} from "./Routers/MainRouter";
 import cors = require("cors");
 import {mailRouter} from "./Routers/MailRouter";
+import {userRouter} from "./Routers/UserRouter";
 
 export class App {
     public express;
@@ -35,7 +36,8 @@ export class App {
     }
 
     private routes(): void {
-        this.express.use("/user", authRouter);
+        this.express.use("/auth", authRouter);
+        this.express.use("/user", userRouter);
         this.express.use("/", mainRouter);
         this.express.use("/mail", mailRouter);
     }
