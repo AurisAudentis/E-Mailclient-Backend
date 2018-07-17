@@ -35,8 +35,8 @@ authRouter.post("/login", (req, res, next) => {
         if (!user) { return res.sendStatus(409); }
 
         req.logIn(user, (fail) => {
-                if (fail) { return next(fail); }
-                deriveKey(req.body.password, user.iv).then((key) => {
+            if (fail) { return next(fail); }
+            deriveKey(req.body.password, user.iv).then((key) => {
                     if (!req.session) {
                         throw {name: "SessionError", message: "No session is found. Is Redis operational?"};
                     }
@@ -44,7 +44,7 @@ authRouter.post("/login", (req, res, next) => {
                     req.session.save((err) => console.error(err));
                     return req.session.key = key;
                 });
-                return res.redirect("/user");
+            return res.redirect("/user");
         });
 
         })(req, res, next);
