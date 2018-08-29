@@ -7,6 +7,7 @@ export interface IDTOUser {
     password: string;
     auth_level?: number;
     accounts: IMailAccount[];
+    uid: string;
 }
 
 export interface IMailAccount {

@@ -23,7 +23,7 @@ export class App {
         this.express.use("/static", express.static(path.join(__dirname, "/Public")));
         this.express.set("views", path.join(__dirname, "/Public"));
         this.express.set("view engine", "pug");
-        this.express.use(cors({credentials: true, origin: "http://192.168.0.105:4200"}));
+        this.express.use(cors({credentials: true, origin: "http://localhost:4200"}));
         connectMongo();
         this.initSession();
         this.routes();
@@ -42,15 +42,17 @@ export class App {
         this.express.use("/mail", mailRouter);
     }
     private initSession(): void {
-        const RedisStore = connRedis(session);
+        /*const RedisStore = connRedis(session);
         this.express.use(session({
-            store: new RedisStore({host: "localhost", port: 6379}),
+            store: new RedisStore({host: "maxiemgeldhof.com", port: 6379}),
             secret: "light of the way",
             resave: false,
             saveUninitialized: false,
             },
-        ));
+        ));*/
+        this.express.use(session({secret: "light of the way",
+            resave: false,
+            saveUninitialized: false,}));
         initLocalAuth(this.express);
     }
-
 }

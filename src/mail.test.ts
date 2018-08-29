@@ -1,12 +1,12 @@
 import {userModel} from "./Database/Models/DUser";
-import {deriveKey, encrypt, generateIv} from "./Imap-Simple/IMAPEncryptDecrypt";
+import {deriveKey, encrypt, generateIv} from "./Infrastructure/Imap-Simple/IMAPEncryptDecrypt";
 import {connectMongo} from "./Database/mongoose-handler";
 import {IDTOMail} from "./Database/Documents/IMail";
-import {IMAPConnection} from "./Imap-Simple/Connection";
-import {accountToConfig} from "./Helpers/ConfigHelper";
+import {IMAPConnection} from "./Infrastructure/Imap-Simple/Connection";
+import {accountToConfig} from "./Infrastructure/Helpers/ConfigHelper";
 import {IDTOUser, IMailAccount} from "./Database/Documents/IUser";
 import {deleteAllMails, emailModel, saveAllMails} from "./Database/Models/DMail";
-import {sync, syncBox} from "./Imap-Simple/SyncService";
+import {sync, syncBox} from "./Infrastructure/Imap-Simple/SyncService";
 
 // Function to test the addition of an email account to the global account.
 function test_save_account() {

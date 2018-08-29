@@ -3,7 +3,6 @@ import {compare} from "bcrypt";
 import {userModel} from "../../Database/Models/DUser";
 
 export const localstrategy = new LocalStrategy((email, password, done) => {
-
     userModel.findOne({email}, (err, user) => {
         if (err) {return done(err); }
         if (!user) {

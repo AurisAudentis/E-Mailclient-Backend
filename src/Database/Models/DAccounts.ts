@@ -1,7 +1,7 @@
 import {Model, model, Schema} from "mongoose";
 import {IMailAccount} from "../Documents/IUser";
 import {serverModel} from "./DServer";
-import {decrypt, unpackIv} from "../../Imap-Simple/IMAPEncryptDecrypt";
+import {decrypt, unpackIv} from "../../Infrastructure/Imap-Simple/IMAPEncryptDecrypt";
 
 const accountSchema: Schema = new Schema({
     userid: Schema.Types.ObjectId,

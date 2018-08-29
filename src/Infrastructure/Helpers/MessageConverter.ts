@@ -1,5 +1,5 @@
 import {Message} from "imap-simple";
-import {IDTOMail} from "../Database/Documents/IMail";
+import {IDTOMail} from "../../Database/Documents/IMail";
 import {Schema} from "mongoose";
 
 export function messageToMail(message: Message, mailbox: string, recip: string, userid: Schema.Types.ObjectId): IDTOMail {

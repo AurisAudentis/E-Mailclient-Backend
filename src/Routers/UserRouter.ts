@@ -1,19 +1,26 @@
 import express = require("express");
 import {isAuthed} from "../AuthStrategies/AuthMiddleware";
-import {accountModel, getAccount} from "../Database/Models/DAccounts";
+import {getAccount} from "../Database/Models/DAccounts";
 import {IUser} from "../Database/Documents/IUser";
-import {mailRouter} from "./MailRouter";
+import * as passport from "passport";
 
 export const userRouter = express.Router();
 
+userRouter.use(passport.authenticate('bearer', {session: false}));
 userRouter.use(isAuthed);
 
-mailRouter.get("/accounts", ((req, res) => {
+userRouter.get("/accounts", ((req, res) => {
     const user = req.user as IUser;
     user.getDecryptedMailAccounts().then((accs) => {
         res.json(accs);
     });
 }));
+
+userRouter.get("/", isAuthed, (req, res) => {
+    console.log("not working");
+    req.user.getMailAccounts().then((x) =>
+        res.json({email: req.user.email, accounts: x}));
+});
 
 userRouter.get("/:account/boxes", (req, res) => {
     getAccount(req.user, req.params.account).then((acc) => {

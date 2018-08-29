@@ -1,13 +1,13 @@
 import {model, Model, Schema} from "mongoose";
 import {IMailAccount, IUser} from "../Documents/IUser";
 import {hash} from "bcrypt";
-import {generateIv} from "../../Imap-Simple/IMAPEncryptDecrypt";
+import {generateIv} from "../../Infrastructure/Imap-Simple/IMAPEncryptDecrypt";
 import {accountModel, decryptAccounts} from "./DAccounts";
 import {IDTOMail} from "../Documents/IMail";
 import {emailModel} from "./DMail";
 import {addServer} from "./DServer";
-import {IMAPConnection} from "../../Imap-Simple/Connection";
-import {assert} from "../../Helpers/Assertion";
+import {IMAPConnection} from "../../Infrastructure/Imap-Simple/Connection";
+import {assert} from "../../Infrastructure/Helpers/Assertion";
 
 const userSchema: Schema = new Schema({
     username : String,
@@ -15,12 +15,12 @@ const userSchema: Schema = new Schema({
     password: String,
     auth_level: Number,
     iv: String,
-    createdate: {type: Date, default: Date.now() },
+    createdate: {type: Date, default: Date.now()},
+    uid: String,
 })
     .pre("save", function(next) {
-    console.log("hashing");
     const user = this as IUser;
-    hash(user.password, 10, (err, hashed) => {
+        hash(user.password, 10, (err, hashed) => {
         if (err) {
             next(err);
         }

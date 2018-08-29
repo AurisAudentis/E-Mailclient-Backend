@@ -1,66 +1,39 @@
-import {IDTOUser, IUser} from "../Database/Documents/IUser";
-import {userModel} from "../Database/Models/DUser";
-import {uniqueEmail, validate} from "../AuthStrategies/Validate_Input";
-import {deriveKey, encrypt, generateIv} from "../Imap-Simple/IMAPEncryptDecrypt";
+import {IUser} from "../Database/Documents/IUser";
+import {deriveKey, encrypt, generateIv} from "../Infrastructure/Imap-Simple/IMAPEncryptDecrypt";
 import {isAuthed} from "../AuthStrategies/AuthMiddleware";
-import passport = require("passport");
+import {IMAPConnection} from "../Infrastructure/Imap-Simple/Connection";
+import {accountToConfig} from "../Infrastructure/Helpers/ConfigHelper";
+import {sync} from "../Infrastructure/Imap-Simple/SyncService";
+import config from "../config/config";
+import {userModel} from "../Database/Models/DUser";
+import {validateResponse} from "../Infrastructure/Helpers/ValidateResponse";
 import express = require("express");
-import {IMAPConnection} from "../Imap-Simple/Connection";
-import {accountToConfig} from "../Helpers/ConfigHelper";
-import {sync} from "../Imap-Simple/SyncService";
+import needle = require("needle");
 
 export const authRouter = express.Router();
 
 authRouter.post("/register", (req, res) => {
-    if (validate(req.body.email, 2, 100, ["@"])) {
-        uniqueEmail(req.body.email).then((passed) => {
-            if (passed) {
-                const registerInfo: IDTOUser = {
-                    email: req.body.email as string,
-                    password: req.body.password as string,
-                    accounts : [],
-                };
-                userModel.create(registerInfo).then(() => res.json({status: true}));
-            } else {
-                res.json({status: false, message: "Your email is already in use."});
-            }});
-    } else {
-        res.json({status: false, message: "Your email is not valid."});
-    }
+    console.log(config.oauth_credentials);
+    needle('post', `${config.oauthUrl}/user/register`, {...config.oauth_credentials, email: req.body.username, password: req.body.password})
+        .then(response => validateResponse(response))
+        .then(resp => {console.log(resp); return resp;})
+        .then((response) => userModel.create({email: req.body.username, password: req.body.password, uid: response.body.uid, accounts: []}))
+        .then(() => res.send({message: "success"}))
+        .catch((err) => {err.status = err.status || 400; res.status(err.status).json(err).end()})
 });
 
-authRouter.post("/login", (req, res, next) => {
-    passport.authenticate("local", (errs, user: IUser) => {
-        if (errs) { next(errs); }
-        if (!user) { return res.sendStatus(409); }
-
-        req.logIn(user, (fail) => {
-            if (fail) { return next(fail); }
-            deriveKey(req.body.password, user.iv).then((key) => {
-                    if (!req.session) {
-                        throw {name: "SessionError", message: "No session is found. Is Redis operational?"};
-                    }
-                    req.session.key = key;
-                    req.session.save((err) => console.error(err));
-                    return req.session.key = key;
-                });
-            return res.redirect("/user");
-        });
-
-        })(req, res, next);
-    },
-);
-
-authRouter.get("/logout", (req, res) => {
-    if (req.session) {
-        req.logOut();
-    }
-    res.sendStatus(200);
-});
-
-authRouter.get("/", isAuthed, (req, res) => {
-    req.user.getMailAccounts().then((x) =>
-     res.json({email: req.user.email, accounts: x}));
+authRouter.post("/login", (req, res) => {
+    userModel.findOne({email: req.body.username})
+        .then(user => Promise.all([
+            needle('post', `${config.oauthUrl}/token`, {...config.oauth_credentials, uid: user.uid, password: req.body.password, grant_type:"password"}),
+            deriveKey(req.body.password, user.iv)
+        ]))
+        .then(results => {console.log(results[0].body); return results})
+        .then(results => {
+            validateResponse(results[0]); return results})
+        .then(results => res.send({...results[0].body, key: results[1]}))
+        .catch(err => {err.status = err.status || 401;
+        res.status(err.status).send(err).end()})
 });
 
 authRouter.post("/addAccount", isAuthed, ((req, res) => {
