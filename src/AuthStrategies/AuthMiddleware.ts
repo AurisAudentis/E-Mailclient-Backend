@@ -1,9 +1,8 @@
 export function isAuthed(req, res, next) {
     console.log("isauthed");
-    if (req.isAuthenticated()) {
-        req.user.key = req.headers["Mail-Password-Key"];  // The key must be stored in session, but belongs in the user.
+    if (req.isAuthenticated()) {// The key must be stored client-side for stateless
+        req.user.key = req.headers["Mail-Password-Key"];
         return next();
     }
-    res.status(409);
-    res.end();
+    res.status(409).end();
 }

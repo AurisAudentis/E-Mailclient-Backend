@@ -36,6 +36,10 @@ authRouter.post("/login", (req, res) => {
         res.status(err.status).send(err).end()})
 });
 
+authRouter.post("/refreshtoken", (req, res) => {
+    res.status(401).send({err: "not implemented"});
+});
+
 authRouter.post("/addAccount", isAuthed, ((req, res) => {
     const user = req.user as IUser;
     const data = req.body;

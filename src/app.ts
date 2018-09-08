@@ -23,7 +23,7 @@ export class App {
         this.express.use("/static", express.static(path.join(__dirname, "/Public")));
         this.express.set("views", path.join(__dirname, "/Public"));
         this.express.set("view engine", "pug");
-        this.express.use(cors({credentials: true, origin: "http://localhost:4200"}));
+        this.express.use(cors({credentials: true, origin: (origin, done) => done(null, true)}));
         connectMongo();
         this.initSession();
         this.routes();
