@@ -49,7 +49,6 @@ export function syncBox(user: IUser, conn: IMAPConnection, box: string): Promise
                 if (uid in dbmails) {
                     if (JSON.stringify(imapmails[uid].flags.sort()) !==
                                 JSON.stringify(dbmails[uid].email.flags.sort())) {
-                        console.log(dbmails[uid].email.flags, imapmails[uid].flags);
                         dbmails[uid].flags = imapmails[uid].flags;
                         dbmails[uid].save();
                     }

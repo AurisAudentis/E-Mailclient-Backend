@@ -3,6 +3,10 @@ import {isAuthed} from "../AuthStrategies/AuthMiddleware";
 import {getAccount} from "../Database/Models/DAccounts";
 import {IUser} from "../Database/Documents/IUser";
 import * as passport from "passport";
+import {IMAPConnection} from "../Infrastructure/Imap-Simple/Connection";
+import {accountToConfig} from "../Infrastructure/Helpers/ConfigHelper";
+import {encrypt, generateIv} from "../Infrastructure/Imap-Simple/IMAPEncryptDecrypt";
+import {sync} from "../Infrastructure/Imap-Simple/SyncService";
 
 export const userRouter = express.Router();
 
@@ -16,9 +20,34 @@ userRouter.get("/accounts", ((req, res) => {
     });
 }));
 
+userRouter.post("/addAccount", (req, res) => {
+const user = req.user as IUser;
+const data = req.body;
+const server = data.server;
+const account = { email: data.email, password: data.password, server };
+
+new IMAPConnection(accountToConfig(account), user).test()
+    .then((succeeded) => {
+        if (succeeded) {
+            encrypt(data.password, user.key, generateIv())
+                .then((pass) => {
+                    account.password = pass;
+                    user.addAccount(account);
+                    sync(user);
+                    res.status(200);
+                    res.end();
+                });
+        } else {
+            res.status(400);
+        }
+    });
+});
+
 userRouter.get("/", isAuthed, (req, res) => {
-    console.log("not working");
-    req.user.getMailAccounts().then((x) =>
+    // @ts-ignore
+    sync(req.user);
+    req.user.getMailAccounts()
+        .then((x) =>
         res.json({email: req.user.email, accounts: x}));
 });
 

@@ -1,9 +1,11 @@
 import express = require("express");
 import {isAuthed} from "../AuthStrategies/AuthMiddleware";
 import {emailModel} from "../Database/Models/DMail";
+import * as passport from "passport";
 
 export const mailRouter = express.Router();
 
+mailRouter.use(passport.authenticate('bearer', {session: false}));
 mailRouter.use(isAuthed);
 
 mailRouter.get("/mailbox/:acc/:box/:id", (req, res) => {

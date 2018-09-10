@@ -31,5 +31,5 @@ export function saveAllMails(mails: IDTOMail[]) {
 }
 
 export function deleteAllMails(user: IUser) {
-    emailModel.deleteMany({userid: user._id}).then(console.log);
+    emailModel.deleteMany({userid: user._id})
 }

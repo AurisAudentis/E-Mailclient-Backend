@@ -63,7 +63,6 @@ export class IMAPConnection {
         return this.start()
             .then(() => this.conn.getBoxes())
             .then((box) => Object.keys(box))
-            .then((boxes) => {console.log(boxes); return boxes; })
             .then(this.end.bind(this));
     }
 
