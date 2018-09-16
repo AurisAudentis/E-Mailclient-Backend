@@ -3,6 +3,8 @@ import {IDTOMail} from "../Documents/IMail";
 import {IUser} from "../Documents/IUser";
 import paginate = require("mongoose-paginate");
 
+const AddressObject = {html: String, text: String, value: Array({address: String, name: String})};
+
 const emailSchema: Schema = new Schema({
     userid: Schema.Types.ObjectId,
     mailbox: String,
@@ -11,11 +13,8 @@ const emailSchema: Schema = new Schema({
     email: {
         subject: String,
         date: Date,
-        from: {
-            name: String,
-            returnAddress: String,
-        },
-        to: String,
+        from: {...AddressObject},
+        to: {...AddressObject},
         message: String,
         unread: Boolean,
         flags: Array(String),

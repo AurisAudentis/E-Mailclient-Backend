@@ -15,6 +15,7 @@
   "dependencies": {
     "@types/body-parser": "^1.17.0",
     "@types/imap-simple": "^3.1.1",
+    "@types/mailparser": "^2.0.2",
     "@types/mongodb": "^3.0.18",
     "@types/mongoose-paginate": "^5.0.6",
     "@types/node": "^10.1.4",
@@ -27,6 +28,7 @@
     "express-session": "^1.15.6",
     "imap-simple": "^4.1.0",
     "jsonwebtoken": "^8.3.0",
+    "mailparser": "^2.3.4",
     "mongoose": "^5.1.0",
     "mongoose-paginate": "^5.0.3",
     "morgan": "^1.9.0",

@@ -21,26 +21,26 @@ userRouter.get("/accounts", ((req, res) => {
 }));
 
 userRouter.post("/addAccount", (req, res) => {
-const user = req.user as IUser;
-const data = req.body;
-const server = data.server;
-const account = { email: data.email, password: data.password, server };
+    const user = req.user as IUser;
+    const data = req.body;
+    const server = data.server;
+    const account = {email: data.email, password: data.password, server};
 
-new IMAPConnection(accountToConfig(account), user).test()
-    .then((succeeded) => {
-        if (succeeded) {
-            encrypt(data.password, user.key, generateIv())
-                .then((pass) => {
-                    account.password = pass;
-                    user.addAccount(account);
-                    sync(user);
-                    res.status(200);
-                    res.end();
-                });
-        } else {
-            res.status(400);
-        }
-    });
+    new IMAPConnection(accountToConfig(account), user).test()
+        .then((succeeded) => {
+            if (succeeded) {
+                encrypt(data.password, user.key, generateIv())
+                    .then((pass) => {
+                        account.password = pass;
+                        user.addAccount(account);
+                        sync(user);
+                        res.status(200);
+                        res.end();
+                    });
+            } else {
+                res.status(400);
+            }
+        });
 });
 
 userRouter.get("/", isAuthed, (req, res) => {
@@ -48,7 +48,7 @@ userRouter.get("/", isAuthed, (req, res) => {
     sync(req.user);
     req.user.getMailAccounts()
         .then((x) =>
-        res.json({email: req.user.email, accounts: x}));
+            res.json({email: req.user.email, accounts: x}));
 });
 
 userRouter.get("/:account/boxes", (req, res) => {

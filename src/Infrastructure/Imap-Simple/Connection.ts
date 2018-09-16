@@ -19,7 +19,7 @@ export class IMAPConnection {
 
     public getAllMails(): Promise< IDTOMail[] > {
         return this.start().then(() => {
-            // getboxes is added in latest version of imapsimple, type file not up to date.
+            // @ts-ignore :  getboxes is added in latest version of imapsimple, type file not up to date.
             return this.conn.getBoxes().then((boxes) => {
                 boxes = Object.keys(boxes);
                 // We map the boxes to a Promise that returns the e-mails;
@@ -51,9 +51,9 @@ export class IMAPConnection {
         return this.start()
             .then(() => this.conn.openBox(box))
             .then(() =>
-                Promise.all(uids.map((uid) => this.conn.search([["UID", uid]], {bodies: ["HEADER", "TEXT"]}))))
+                Promise.all(uids.map((uid) => this.conn.search([["UID", uid]], {bodies: [""]}))))
             .then((messages) =>
-                messages.map((message) => messageToMail(message[0], box, this.config.imap.user, this.user._id)),
+                Promise.all(messages.map((message) => messageToMail(message[0], box, this.config.imap.user, this.user._id))),
             )
             .then((messages) => messages.reduce((acc, curr) => {acc.push(curr); return acc; }, []))
             .then(this.end.bind(this));
@@ -61,6 +61,7 @@ export class IMAPConnection {
 
     public getBoxes(): Promise<string[]> {
         return this.start()
+        // @ts-ignore : td file not up to date
             .then(() => this.conn.getBoxes())
             .then((box) => Object.keys(box))
             .then(this.end.bind(this));
@@ -72,7 +73,7 @@ export class IMAPConnection {
         const searchOptions = {bodies: ["HEADER", "TEXT"], markSeen: false};
         // Map results to IDTOMail format.
         return conn.search(searchCriteria, searchOptions).then((results) =>
-            results.map((x) => messageToMail(x, box, this.config.imap.user, this.user._id)));
+            Promise.all(results.map((x) => messageToMail(x, box, this.config.imap.user, this.user._id))));
     }
 
     private start(): Promise<void> {

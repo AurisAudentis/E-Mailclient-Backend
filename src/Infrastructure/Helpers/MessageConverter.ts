@@ -1,23 +1,26 @@
 import {Message} from "imap-simple";
-import {IDTOMail} from "../../Database/Documents/IMail";
 import {Schema} from "mongoose";
+import {simpleParser} from "mailparser";
+import {IDTOMail} from "../../Database/Documents/IMail";
 
-export function messageToMail(message: Message, mailbox: string, recip: string, userid: Schema.Types.ObjectId): IDTOMail {
-    const header = message.parts.filter((x) => x.which === "HEADER")[0].body;
-    const body = message.parts.filter((x) => x.which === "TEXT")[0].body;
-    return {
-        userid,
+export function messageToMail(message: Message, mailbox: string, recip: string, userid: Schema.Types.ObjectId): Promise<IDTOMail> {
+    const header = message.parts.find((x) => x.which === "").body;
+    return simpleParser(header).then((parsedMail) => (
+        { userid,
         recip,
         mailbox,
         mailid: message.attributes.uid,
         email: {
-            subject: header.subject[0],
-            date: header.date[0],
-            from: { name:  header.from[0], returnAddress: header["return-path"][0]},
-            to: header["delivered-to"][0],
-            message: body,
+            subject: parsedMail.subject,
+            date: parsedMail.headers.get("date") as Date,
+            from: parsedMail.from,
+            to: parsedMail.to,
+            message: parsedMail.html as string || parsedMail.textAsHtml,
             flags: message.attributes.flags,
             unread: message.attributes.flags.includes(String.raw`\\UNSEEN`),
         },
-    };
+    }
+))
+        .then(x => {console.log(x); return x});
+
 }

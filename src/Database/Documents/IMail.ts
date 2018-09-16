@@ -1,4 +1,5 @@
 import {Document, Schema} from "mongoose";
+import {AddressObject} from "mailparser";
 
 export interface IDTOMail {
     userid: Schema.Types.ObjectId;
@@ -8,11 +9,8 @@ export interface IDTOMail {
     email: {
         subject: string;
         date: Date;
-        from: {
-            name: string;
-            returnAddress: string;
-        };
-        to: string;
+        from: AddressObject
+        to: AddressObject;
         message: string;
         unread: boolean;
         flags?: string[];
