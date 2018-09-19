@@ -1,4 +1,5 @@
 import {connect} from "mongoose";
+import config from "../config/config";
 
-export const connectMongo = () => connect("mongodb://maxiemgeldhof.com:27017/mail")
+export const connectMongo = () => connect(config.databaseUrl)
     .then(() => console.log("Mongoose conn established."));
