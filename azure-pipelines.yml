@@ -13,6 +13,6 @@ steps:
   displayName: 'Install Node.js'
 
 - script: |
-    npm install
+    npm install typescript
     npm run build
   displayName: 'npm install and build'
