@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es6",
+    "sourceMap": true,
+    "inlineSources": true,
+    "typeRoots": [
+      "node_modules/@types"
+    ],
+    "types": [
+      "mocha"
+    ],
+    "lib": ["ES5", "ES2017"],
+    "outDir": "target"
+  },
+  "exclude": [
+    "node_modules"
+  ]
+
+}
