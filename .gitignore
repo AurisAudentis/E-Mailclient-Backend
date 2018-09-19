@@ -5,3 +5,5 @@ tslint.json
 *.js.map
 node_modules/*
 .idea/*
+target/
+target.zip
