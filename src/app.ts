@@ -9,6 +9,8 @@ import {mainRouter} from "./Routers/MainRouter";
 import {mailRouter} from "./Routers/MailRouter";
 import {userRouter} from "./Routers/UserRouter";
 import config from "./config/config";
+import * as passport from "passport";
+import {bearerStrategy} from "./AuthStrategies/BearerStrategy/BearerStrategy";
 
 export class App {
     public express;
@@ -23,7 +25,7 @@ export class App {
         this.express.set("view engine", "pug");
         this.express.use(cors({credentials: true, origin: (origin, done) => done(null, true)}));
         connectMongo();
-        this.initSession();
+        this.initAuth();
         this.routes();
     }
 
@@ -39,7 +41,9 @@ export class App {
         this.express.use(`${config.mountpoint}/`, mainRouter);
         this.express.use(`${config.mountpoint}/mail`, mailRouter);
     }
-    private initSession(): void {
+    private initAuth(): void {
+        this.express.use(passport.initialize());
+        passport.use(bearerStrategy);
 
     }
 }

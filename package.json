@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc --build tsconfig.json && cp node_modules target/node_modules -r"
+    "build": "tsc --build tsconfig.json && cp node_modules build/node_modules -r"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,7 @@
     "@types/mongoose-paginate": "^5.0.6",
     "@types/node": "^10.1.4",
     "@types/passport": "^0.4.5",
-    "bcrypt": "^3.0.0",
+    "bcrypt": "https://github.com/kelektiv/node.bcrypt.js/tarball/v2.0.1",
     "body-parser": "^1.18.3",
     "connect-redis": "^3.3.3",
     "cors": "^2.8.4",
