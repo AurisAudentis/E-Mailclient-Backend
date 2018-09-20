@@ -1,16 +1,14 @@
 import bodyParser = require("body-parser");
-import connRedis = require("connect-redis");
 import express = require("express");
-import session = require("express-session");
 import logger = require("morgan");
+import cors = require("cors");
 import * as path from "path";
-import {initLocalAuth} from "./AuthStrategies/LocalStrategy/InitLocal";
 import {connectMongo} from "./Database/mongoose-handler";
 import {authRouter} from "./Routers/AuthRouter";
 import {mainRouter} from "./Routers/MainRouter";
-import cors = require("cors");
 import {mailRouter} from "./Routers/MailRouter";
 import {userRouter} from "./Routers/UserRouter";
+import config from "./config/config";
 
 export class App {
     public express;
@@ -30,29 +28,18 @@ export class App {
     }
 
     public launch(): App {
-        this.express.listen(8080);
-        console.log("Started listening to calls on port 8080");
+        this.express.listen(config.port);
+        console.log("Started listening to calls on port " + config.port);
         return this;
     }
 
     private routes(): void {
-        this.express.use("/auth", authRouter);
-        this.express.use("/user", userRouter);
-        this.express.use("/", mainRouter);
-        this.express.use("/mail", mailRouter);
+        this.express.use(`${config.mountpoint}/auth`, authRouter);
+        this.express.use(`${config.mountpoint}/user`, userRouter);
+        this.express.use(`${config.mountpoint}/`, mainRouter);
+        this.express.use(`${config.mountpoint}/mail`, mailRouter);
     }
     private initSession(): void {
-        /*const RedisStore = connRedis(session);
-        this.express.use(session({
-            store: new RedisStore({host: "maxiemgeldhof.com", port: 6379}),
-            secret: "light of the way",
-            resave: false,
-            saveUninitialized: false,
-            },
-        ));*/
-        this.express.use(session({secret: "light of the way",
-            resave: false,
-            saveUninitialized: false,}));
-        initLocalAuth(this.express);
+
     }
 }
