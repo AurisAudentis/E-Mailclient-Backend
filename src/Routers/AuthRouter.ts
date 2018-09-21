@@ -15,7 +15,7 @@ export const authRouter = express.Router();
 authRouter.post("/register", (req, res) => {
     needle('post', `${config.oauthUrl}/user/register`, {...config.oauth_credentials, email: req.body.username, password: req.body.password})
         .then(response => validateResponse(response))
-        .then((response) => userModel.create({email: req.body.username, password: req.body.password, uid: response.body.uid, accounts: []}))
+        .then((response) => userModel.create({email: req.body.username, password: "", uid: response.body.uid, accounts: []}))
         .then(() => res.send({message: "success"}))
         .catch((err) => {err.status = err.status || 400; res.status(err.status).json(err).end()})
 });

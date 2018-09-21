@@ -1,6 +1,6 @@
 import {model, Model, Schema} from "mongoose";
 import {IMailAccount, IUser} from "../Documents/IUser";
-import {hash} from "bcrypt";
+import {hash} from "bcryptjs";
 import {generateIv} from "../../Infrastructure/Imap-Simple/IMAPEncryptDecrypt";
 import {accountModel, decryptAccounts} from "./DAccounts";
 import {IDTOMail} from "../Documents/IMail";
@@ -17,16 +17,6 @@ const userSchema: Schema = new Schema({
     iv: String,
     createdate: {type: Date, default: Date.now()},
     uid: String,
-})
-    .pre("save", function(next) {
-    const user = this as IUser;
-        hash(user.password, 10, (err, hashed) => {
-        if (err) {
-            next(err);
-        }
-        user.password = hashed;
-        next();
-        });
 })
     .pre("save", function(next) {
     const user = this as IUser;
