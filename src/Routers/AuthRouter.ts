@@ -1,7 +1,7 @@
 import {IUser} from "../Database/Documents/IUser";
 import {deriveKey, encrypt, generateIv} from "../Infrastructure/Imap-Simple/IMAPEncryptDecrypt";
 import {isAuthed} from "../AuthStrategies/AuthMiddleware";
-import {IMAPConnection} from "../Infrastructure/Imap-Simple/Connection";
+import {IMAPConnection} from "../Infrastructure/Imap-Simple/IMAPConnection";
 import {accountToConfig} from "../Infrastructure/Helpers/ConfigHelper";
 import {sync} from "../Infrastructure/Imap-Simple/SyncService";
 import config from "../config/config";

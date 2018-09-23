@@ -3,7 +3,7 @@ import {isAuthed} from "../AuthStrategies/AuthMiddleware";
 import {getAccount} from "../Database/Models/DAccounts";
 import {IUser} from "../Database/Documents/IUser";
 import * as passport from "passport";
-import {IMAPConnection} from "../Infrastructure/Imap-Simple/Connection";
+import {IMAPConnection} from "../Infrastructure/Imap-Simple/IMAPConnection";
 import {accountToConfig} from "../Infrastructure/Helpers/ConfigHelper";
 import {encrypt, generateIv} from "../Infrastructure/Imap-Simple/IMAPEncryptDecrypt";
 import {sync} from "../Infrastructure/Imap-Simple/SyncService";
@@ -15,7 +15,7 @@ userRouter.use(isAuthed);
 
 userRouter.get("/accounts", ((req, res) => {
     const user = req.user as IUser;
-    user.getDecryptedMailAccounts().then((accs) => {
+    user.getDecryptedIMAPMailAccounts().then((accs) => {
         res.json(accs);
     });
 }));
@@ -46,7 +46,8 @@ userRouter.post("/addAccount", (req, res) => {
 userRouter.get("/", isAuthed, (req, res) => {
     // @ts-ignore
     sync(req.user);
-    req.user.getMailAccounts()
+    req.user.getDecryptedIMAPMailAccounts()
+        .then(x => x.map(acc => ({...acc, password: undefined})))
         .then((x) =>
             res.json({email: req.user.email, accounts: x}));
 });

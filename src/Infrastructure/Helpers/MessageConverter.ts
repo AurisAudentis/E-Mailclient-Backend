@@ -21,6 +21,5 @@ export function messageToMail(message: Message, mailbox: string, recip: string, 
         },
     }
 ))
-        .then(x => {console.log(x); return x});
 
 }

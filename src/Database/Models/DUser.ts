@@ -5,7 +5,7 @@ import {accountModel, decryptAccounts} from "./DAccounts";
 import {IDTOMail} from "../Documents/IMail";
 import {emailModel} from "./DMail";
 import {addServer} from "./DServer";
-import {IMAPConnection} from "../../Infrastructure/Imap-Simple/Connection";
+import {IMAPConnection} from "../../Infrastructure/Imap-Simple/IMAPConnection";
 import {assert} from "../../Infrastructure/Helpers/Assertion";
 
 const userSchema: Schema = new Schema({
@@ -31,9 +31,9 @@ userSchema.methods.addAccount = function(account: IMailAccount) {
     addServer(server).then((x) => {
         acc.server = x;
         return accountModel.findOne({userid : user._id});
-    }).then((resolve) => {
-        resolve.accounts.push(acc);
-        resolve.save();
+    }).then((accounts) => {
+        accounts.accounts.push(acc);
+        accounts.save();
     });
 };
 
@@ -47,8 +47,18 @@ userSchema.methods.getDecryptedMailAccounts = function(): Promise<IMailAccount[]
     return this.getMailAccounts().then((x) => decryptAccounts(x, this.key));
 };
 
+userSchema.methods.getDecryptedSMTPMailAccounts = function(): Promise<IMailAccount[]> {
+    assert("There's no key associated with this account.", !!this.key);
+    return this.getDecryptedMailAccounts().then(accs => accs.filter(account => account.server.type === "SMTP"))
+};
+
+userSchema.methods.getDecryptedIMAPMailAccounts = function(): Promise<IMailAccount[]> {
+    assert("There's no key associated with this account.", !!this.key);
+    return this.getDecryptedMailAccounts().then(accs => accs.filter(account => account.server.type === "IMAP" || account.server.type === "input"))
+};
+
 userSchema.methods.getAllMail = function(): Promise<IDTOMail[]> {
-    return Promise.all(this.getDecryptedMailAccounts()
+    return Promise.all(this.getDecryptedIMAPMailAccounts()
     // Mapping the accounts to all the mails from that account.
         .then((accs) => {
             return accs.map((x) => new IMAPConnection(x, this).getAllMails());

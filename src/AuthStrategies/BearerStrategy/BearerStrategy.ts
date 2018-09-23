@@ -14,7 +14,7 @@ export const bearerStrategy = new BearerStrategy(
             if (err) {done({name: "JWTExpiredErr", message: "The JWT is expired", status: 401}); return;}
             userModel.findOne({uid: decoded.uid})
                 .then(user => done(null, user))
-                .catch(err => done(err))
+                .catch(err => {console.log(err); done(err)})
         })
 
     })

@@ -1,4 +1,4 @@
-import {IMAPConnection} from "./Connection";
+import {IMAPConnection} from "./IMAPConnection";
 import {IMailAccount, IUser} from "../../Database/Documents/IUser";
 import {accountToConfig} from "../Helpers/ConfigHelper";
 import {emailModel, saveAllMails} from "../../Database/Models/DMail";
@@ -17,7 +17,7 @@ export function repeatSync(user: IUser, counter) {
 }
 
 export function sync(user: IUser) {
-    return user.getDecryptedMailAccounts()
+    return user.getDecryptedIMAPMailAccounts()
         .then((accounts) => {
             const factories = accounts.map((account) => () => syncAccount(user, account));
             return seqPromiseResolver(factories);

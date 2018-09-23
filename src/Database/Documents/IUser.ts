@@ -24,6 +24,9 @@ export interface IUser extends IDTOUser, Document {
     addAccount: (account: IMailAccount) => void;
     getMailAccounts: () => Promise<IMailAccount[]>;
     getDecryptedMailAccounts: () => Promise<IMailAccount[]>;
+    getDecryptedSMTPMailAccounts: () => Promise<IMailAccount[]>;
+    getDecryptedIMAPMailAccounts: () => Promise<IMailAccount[]>;
+
     getAllMail: () => Promise<IDTOMail[]>;
     iv: string;
     createdate: Date;

@@ -10,5 +10,4 @@ const configs = {
 };
 console.log("environment: " + env);
 const config = configs[env];
-console.log(config);
 export default config;
